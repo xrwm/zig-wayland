@@ -124,6 +124,11 @@ pub const ScanProtocolsStep = struct {
     /// Add the necessary C source to the compilation unit.
     /// Once https://github.com/ziglang/zig/issues/131 we can remove this.
     pub fn addCSource(self: *ScanProtocolsStep, obj: *zbs.LibExeObjStep) void {
+        const wayland_include_dir = mem.trim(u8, self.builder.exec(
+            &[_][]const u8{ "pkg-config", "--variable=includedir", "wayland-scanner" },
+        ) catch unreachable, &std.ascii.spaces);
+        obj.addIncludeDir(wayland_include_dir);
+
         for (self.protocol_paths.items) |path| {
             obj.addCSourceFile(self.getCodePath(path), &[_][]const u8{"-std=c99"});
         }
